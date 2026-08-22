@@ -1,0 +1,6 @@
+{
+  "name": "AuAu Care & Social Dog",
+  "description": "Aplicativo completo para donos de cães com prontuário digital, agenda de vacinas, mapa de pet shops e adestradores, rede social para encontros em parques, marketplace, recompensas e plantão veterinário 24h.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
