@@ -32,6 +32,12 @@ export default function App() {
   // Active pet reference
   const activePet = pets.find(p => p.id === activePetId) || pets[0];
 
+  // Check for overdue vaccines or health alerts
+  const overdueVaccines = activePet?.vaccines.filter(v => v.status === 'overdue') || [];
+  const overdueDeworming = activePet?.dewormingHistory.filter(d => new Date(d.nextDueDate).getTime() < Date.now()) || [];
+  const hasOverdueAlerts = overdueVaccines.length > 0 || overdueDeworming.length > 0;
+  const overdueCount = overdueVaccines.length + overdueDeworming.length;
+
   const handleSelectPet = (petId: string) => {
     setActivePetId(petId);
     StorageService.setActivePetId(petId);
@@ -208,15 +214,42 @@ export default function App() {
         <button
           id="floating-vet-fab-btn"
           onClick={() => setCurrentTab('vetChat')}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3.5 rounded-full shadow-2xl transition-all transform hover:scale-105 active:scale-95 group"
-          title="Falar com Veterinário de Plantão 24h"
+          className={`fixed bottom-6 right-6 z-40 flex items-center gap-2.5 px-4 py-3.5 rounded-full shadow-2xl transition-all transform hover:scale-105 active:scale-95 group ${
+            hasOverdueAlerts
+              ? 'bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white ring-4 ring-red-500/40 shadow-red-500/30'
+              : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+          }`}
+          title={
+            hasOverdueAlerts
+              ? `Ação Urgente: ${overdueCount} alerta(s) de vacina ou saúde vencidos! Toque para falar com o Plantão 24h.`
+              : 'Falar com Veterinário de Plantão 24h'
+          }
         >
           <div className="relative">
-            <MessageCircle className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-indigo-600 animate-ping"></span>
+            {hasOverdueAlerts ? (
+              <>
+                <ShieldAlert className="w-5 h-5 text-white" />
+                <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-90"></span>
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 ring-2 ring-white border border-red-200"></span>
+                </span>
+              </>
+            ) : (
+              <>
+                <MessageCircle className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-indigo-600 animate-ping"></span>
+              </>
+            )}
           </div>
-          <span className="text-xs font-bold whitespace-nowrap pr-1">
-            Plantão Vet 24h
+          <span className="text-xs font-bold whitespace-nowrap pr-1 flex items-center gap-1.5">
+            {hasOverdueAlerts ? (
+              <>
+                <span>Ação Urgente ({overdueCount})</span>
+                <span className="hidden sm:inline opacity-90 text-[11px] font-medium">• Plantão 24h</span>
+              </>
+            ) : (
+              <span>Plantão Vet 24h</span>
+            )}
           </span>
         </button>
       )}
