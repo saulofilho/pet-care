@@ -98,126 +98,129 @@ export default function App() {
   if (!activePet) return null;
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
-      {/* Navbar with Bento Links, Points, SOS Button */}
-      <Navbar
-        currentTab={currentTab}
-        onSelectTab={setCurrentTab}
-        onOpenSos={() => setIsSosOpen(true)}
-        pendingAlertsCount={totalPendingAlerts}
-        points={rewards.pointsBalance}
-        tier={rewards.tier}
-      />
+    <div className="min-h-screen bg-slate-100 text-[#2d3436] flex flex-col font-fredoka selection:bg-[#fab1a0] selection:text-[#2d3436]">
+      {/* Outer wrapper */}
+      <div className="flex-1 flex flex-col">
+        {/* Navbar with Bento Links, Points, SOS Button */}
+        <Navbar
+          currentTab={currentTab}
+          onSelectTab={setCurrentTab}
+          onOpenSos={() => setIsSosOpen(true)}
+          pendingAlertsCount={totalPendingAlerts}
+          points={rewards.pointsBalance}
+          tier={rewards.tier}
+        />
 
-      {/* Pet Header with Switching, Quick Health Chips, SOS */}
-      <PetProfileHeader
-        pets={pets}
-        activePet={activePet}
-        onSelectPet={handleSelectPet}
-        onAddNewPet={handleAddNewPet}
-        onOpenSos={() => setIsSosOpen(true)}
-        points={rewards.pointsBalance}
-        tier={rewards.tier}
-      />
+        {/* Pet Header with Switching, Quick Health Chips, SOS */}
+        <PetProfileHeader
+          pets={pets}
+          activePet={activePet}
+          onSelectPet={handleSelectPet}
+          onAddNewPet={handleAddNewPet}
+          onOpenSos={() => setIsSosOpen(true)}
+          points={rewards.pointsBalance}
+          tier={rewards.tier}
+        />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
-        {/* Toast Alert Notification */}
-        {toastMessage && (
-          <div className="fixed bottom-20 right-6 z-50 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 rounded-2xl shadow-2xl border border-emerald-500 text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-5 duration-200">
-            <span>{toastMessage}</span>
-          </div>
-        )}
+        {/* Main Content Area */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
+          {/* Toast Alert Notification */}
+          {toastMessage && (
+            <div className="fixed bottom-24 right-4 sm:right-6 z-50 bg-[#2d3436] text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl border-3 border-[#55efc4] shadow-[4px_4px_0px_#2d3436] text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-5 duration-200">
+              <span>{toastMessage}</span>
+            </div>
+          )}
 
-        {/* View Switching */}
-        {currentTab === 'dashboard' && (
-          <BentoDashboard
-            pet={activePet}
-            places={places}
-            posts={posts}
-            meetups={meetups}
-            products={products}
-            rewards={rewards}
-            vetMessages={vetMessages}
-            onSelectTab={setCurrentTab}
-            onOpenSos={() => setIsSosOpen(true)}
-            onAddPoints={handleAddPoints}
-            onUpdatePet={handleUpdateActivePet}
-          />
-        )}
+          {/* View Switching */}
+          {currentTab === 'dashboard' && (
+            <BentoDashboard
+              pet={activePet}
+              places={places}
+              posts={posts}
+              meetups={meetups}
+              products={products}
+              rewards={rewards}
+              vetMessages={vetMessages}
+              onSelectTab={setCurrentTab}
+              onOpenSos={() => setIsSosOpen(true)}
+              onAddPoints={handleAddPoints}
+              onUpdatePet={handleUpdateActivePet}
+            />
+          )}
 
-        {currentTab === 'vaccines' && (
-          <VaccineSchedule
-            pet={activePet}
-            onUpdatePet={handleUpdateActivePet}
-            onAddPoints={handleAddPoints}
-          />
-        )}
+          {currentTab === 'vaccines' && (
+            <VaccineSchedule
+              pet={activePet}
+              onUpdatePet={handleUpdateActivePet}
+              onAddPoints={handleAddPoints}
+            />
+          )}
 
-        {currentTab === 'medical' && (
-          <MedicalRecord
-            pet={activePet}
-            onUpdatePet={handleUpdateActivePet}
-            onAddPoints={handleAddPoints}
-          />
-        )}
+          {currentTab === 'medical' && (
+            <MedicalRecord
+              pet={activePet}
+              onUpdatePet={handleUpdateActivePet}
+              onAddPoints={handleAddPoints}
+            />
+          )}
 
-        {currentTab === 'map' && (
-          <NearbyMap
-            places={places}
-            onAddPoints={handleAddPoints}
-          />
-        )}
+          {currentTab === 'map' && (
+            <NearbyMap
+              places={places}
+              onAddPoints={handleAddPoints}
+            />
+          )}
 
-        {currentTab === 'social' && (
-          <SocialParkMeetups
-            pet={activePet}
-            posts={posts}
-            meetups={meetups}
-            onSavePosts={handleSavePosts}
-            onSaveMeetups={handleSaveMeetups}
-            onAddPoints={handleAddPoints}
-          />
-        )}
+          {currentTab === 'social' && (
+            <SocialParkMeetups
+              pet={activePet}
+              posts={posts}
+              meetups={meetups}
+              onSavePosts={handleSavePosts}
+              onSaveMeetups={handleSaveMeetups}
+              onAddPoints={handleAddPoints}
+            />
+          )}
 
-        {currentTab === 'marketplace' && (
-          <Marketplace
-            products={products}
-            onAddPoints={handleAddPoints}
-          />
-        )}
+          {currentTab === 'marketplace' && (
+            <Marketplace
+              products={products}
+              onAddPoints={handleAddPoints}
+            />
+          )}
 
-        {currentTab === 'rewards' && (
-          <RewardsSystem
-            rewards={rewards}
-            coupons={coupons}
-            missions={missions}
-            onSaveRewards={handleSaveRewards}
-            onSaveMissions={handleSaveMissions}
-            onAddPoints={handleAddPoints}
-          />
-        )}
+          {currentTab === 'rewards' && (
+            <RewardsSystem
+              rewards={rewards}
+              coupons={coupons}
+              missions={missions}
+              onSaveRewards={handleSaveRewards}
+              onSaveMissions={handleSaveMissions}
+              onAddPoints={handleAddPoints}
+            />
+          )}
 
-        {currentTab === 'vetChat' && (
-          <Vet24hChat
-            pet={activePet}
-            messages={vetMessages}
-            onSaveMessages={handleSaveVetMessages}
-            onUpdatePet={handleUpdateActivePet}
-            onAddPoints={handleAddPoints}
-          />
-        )}
-      </main>
+          {currentTab === 'vetChat' && (
+            <Vet24hChat
+              pet={activePet}
+              messages={vetMessages}
+              onSaveMessages={handleSaveVetMessages}
+              onUpdatePet={handleUpdateActivePet}
+              onAddPoints={handleAddPoints}
+            />
+          )}
+        </main>
+      </div>
 
       {/* Floating Plantão Vet 24h FAB */}
       {currentTab !== 'vetChat' && (
         <button
           id="floating-vet-fab-btn"
           onClick={() => setCurrentTab('vetChat')}
-          className={`fixed bottom-6 right-6 z-40 flex items-center gap-2.5 px-4 py-3.5 rounded-full shadow-2xl transition-all transform hover:scale-105 active:scale-95 group ${
+          className={`fixed bottom-6 right-6 z-40 flex items-center gap-2.5 px-5 py-3.5 rounded-full border-3 border-[#2d3436] shadow-[4px_4px_0px_#2d3436] transition-all transform hover:scale-105 active:scale-95 group ${
             hasOverdueAlerts
-              ? 'bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white ring-4 ring-red-500/40 shadow-red-500/30'
-              : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+              ? 'bg-[#eb4d4b] hover:bg-[#d63031] text-white animate-bounce'
+              : 'bg-[#fd79a8] hover:bg-[#f368e0] text-[#2d3436]'
           }`}
           title={
             hasOverdueAlerts
@@ -228,16 +231,16 @@ export default function App() {
           <div className="relative">
             {hasOverdueAlerts ? (
               <>
-                <ShieldAlert className="w-5 h-5 text-white" />
+                <ShieldAlert className="w-5 h-5 text-white stroke-[2.5]" />
                 <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-90"></span>
-                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 ring-2 ring-white border border-red-200"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-90"></span>
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-white border border-[#2d3436]"></span>
                 </span>
               </>
             ) : (
               <>
-                <MessageCircle className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-indigo-600 animate-ping"></span>
+                <MessageCircle className="w-5 h-5 stroke-[2.5]" />
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#55efc4] rounded-full border border-[#2d3436] animate-ping"></span>
               </>
             )}
           </div>
@@ -245,7 +248,7 @@ export default function App() {
             {hasOverdueAlerts ? (
               <>
                 <span>Ação Urgente ({overdueCount})</span>
-                <span className="hidden sm:inline opacity-90 text-[11px] font-medium">• Plantão 24h</span>
+                <span className="hidden sm:inline opacity-90 text-[11px] font-mono-code font-bold">• Plantão 24h</span>
               </>
             ) : (
               <span>Plantão Vet 24h</span>

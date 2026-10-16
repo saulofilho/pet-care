@@ -80,44 +80,44 @@ export const PetProfileHeader: React.FC<Props> = ({
   };
 
   return (
-    <div id="pet-profile-header" className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+    <div id="pet-profile-header" className="bg-[#f1f2f6] dark:bg-[#1e272e] border-b-3 border-[#2d3436] sticky top-16 sm:top-18 z-30 shadow-xs">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           {/* Active Pet Selector & Avatar */}
-          <div className="flex items-center gap-3.5">
-            <div className="relative">
+          <div className="flex items-center gap-3">
+            <div className="relative shrink-0">
               <img
                 src={activePet.avatar}
                 alt={activePet.name}
-                className="w-14 h-14 rounded-2xl object-cover ring-2 ring-emerald-500/80 shadow-md"
+                className="w-12 h-12 sm:w-13 sm:h-13 rounded-2xl object-cover border-3 border-[#2d3436] shadow-[2px_2px_0px_#2d3436]"
               />
-              <span className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-0.5 rounded-full ring-2 ring-white dark:ring-slate-900">
-                <CheckCircle2 className="w-3.5 h-3.5" />
+              <span className="absolute -bottom-1 -right-1 bg-[#55efc4] text-[#2d3436] p-0.5 rounded-full border border-[#2d3436]">
+                <CheckCircle2 className="w-3.5 h-3.5 stroke-[2.5]" />
               </span>
             </div>
 
-            <div className="relative">
-              <div className="flex items-center gap-2">
+            <div className="relative min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 <button
                   id="pet-selector-dropdown-btn"
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center gap-2 font-bold text-xl text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                  className="flex items-center gap-1 font-bold font-fredoka text-lg sm:text-xl text-[#2d3436] dark:text-white hover:text-indigo-600 transition-colors"
                 >
-                  <span>{activePet.name}</span>
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                  <span className="truncate">{activePet.name}</span>
+                  <ChevronDown className="w-4 h-4 text-[#2d3436] stroke-[2.5] shrink-0" />
                 </button>
 
-                <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                <span className="neo-tag">
                   {activePet.breed}
                 </span>
               </div>
 
-              <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                <span>{activePet.ageYears} anos e {activePet.ageMonths} meses</span>
+              <div className="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs font-mono-code text-slate-600 dark:text-slate-300 mt-0.5">
+                <span>{activePet.ageYears}a {activePet.ageMonths}m</span>
                 <span>•</span>
-                <span className="font-semibold text-slate-700 dark:text-slate-300">{activePet.weightKg} kg</span>
-                <span>•</span>
-                <span>{activePet.gender === 'male' ? 'Macho' : 'Fêmea'} ({activePet.neutered ? 'Castrado' : 'Não castrado'})</span>
+                <span className="font-bold text-[#2d3436] dark:text-white">{activePet.weightKg} kg</span>
+                <span className="hidden sm:inline">•</span>
+                <span className="hidden sm:inline">{activePet.gender === 'male' ? 'Macho' : 'Fêmea'} ({activePet.neutered ? 'Castrado' : 'Não castrado'})</span>
               </div>
 
               {/* Dropdown Menu for Pets */}
@@ -167,34 +167,34 @@ export const PetProfileHeader: React.FC<Props> = ({
           </div>
 
           {/* Quick Status Badges + SOS Button */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2 mt-1 sm:mt-0">
             {/* Vaccine alert tag */}
             {pendingVaccines.length > 0 ? (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-semibold border border-amber-200 dark:border-amber-800/80">
-                <AlertCircle className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
-                <span>{pendingVaccines.length} vacina(s) pendente(s)</span>
+              <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-semibold border-2 border-[#2d3436]">
+                <AlertCircle className="w-3.5 h-3.5 text-amber-600 animate-pulse shrink-0" />
+                <span className="font-mono-code font-bold">{pendingVaccines.length} vacina(s) pendente(s)</span>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs font-semibold border border-emerald-200 dark:border-emerald-800/80">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Vacinas 100% em dia</span>
+              <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs font-semibold border-2 border-[#2d3436]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span className="font-mono-code font-bold">Vacinas 100% em dia</span>
               </div>
             )}
 
             {/* AuCoins & Tier Chip */}
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-800 dark:text-violet-300 text-xs font-bold border border-violet-200 dark:border-violet-800">
-              <Award className="w-3.5 h-3.5 text-amber-500" />
-              <span>{points} AuCoins • {tier}</span>
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#55efc4] text-[#2d3436] text-xs font-bold border-2 border-[#2d3436]">
+              <Award className="w-3.5 h-3.5 text-[#2d3436]" />
+              <span className="font-mono-code font-bold">{points} AuCoins • {tier}</span>
             </div>
 
             {/* Critical SOS Emergency Button */}
             <button
               id="header-sos-emergency-btn"
               onClick={onOpenSos}
-              className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white px-4 py-2 rounded-xl text-xs font-extrabold shadow-md hover:shadow-red-500/25 transition-all transform active:scale-95"
+              className="flex items-center gap-1.5 bg-[#eb4d4b] hover:bg-[#d63031] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold border-2 border-[#2d3436] shadow-[2px_2px_0px_#2d3436] transition-transform active:translate-x-[1px] active:translate-y-[1px]"
             >
-              <ShieldAlert className="w-4 h-4 animate-bounce" />
-              <span>SOS EMERGÊNCIA</span>
+              <ShieldAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span className="whitespace-nowrap">FICHA SOS</span>
             </button>
           </div>
         </div>
