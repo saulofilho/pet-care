@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Pet, PlaceLocation, SocialPost, ParkMeetup, Product, UserRewards, VetMessage, RewardCoupon, Mission } from './types';
 import { StorageService } from './services/storage';
 import { Navbar, AppTab } from './components/Navbar';
+import { PetOnboarding } from './components/PetOnboarding';
+import { AddPetModal } from './components/AddPetModal';
 import { PetProfileHeader } from './components/PetProfileHeader';
 import { BentoDashboard } from './components/BentoDashboard';
 import { VaccineSchedule } from './components/VaccineSchedule';
@@ -12,13 +14,13 @@ import { Marketplace } from './components/Marketplace';
 import { RewardsSystem } from './components/RewardsSystem';
 import { Vet24hChat } from './components/Vet24hChat';
 import { SosEmergencyModal } from './components/SosEmergencyModal';
-import { MessageCircle, Sparkles, ShieldAlert } from 'lucide-react';
+import { MessageCircle, ShieldAlert } from 'lucide-react';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<AppTab>('dashboard');
   const [pets, setPets] = useState<Pet[]>(() => StorageService.getPets());
   const [activePetId, setActivePetId] = useState<string>(() => StorageService.getActivePetId());
-  const [places, setPlaces] = useState<PlaceLocation[]>(() => StorageService.getPlaces());
+  const [places] = useState<PlaceLocation[]>(() => StorageService.getPlaces());
   const [posts, setPosts] = useState<SocialPost[]>(() => StorageService.getPosts());
   const [meetups, setMeetups] = useState<ParkMeetup[]>(() => StorageService.getMeetups());
   const [products] = useState<Product[]>(() => StorageService.getProducts());
@@ -27,16 +29,22 @@ export default function App() {
   const [missions, setMissions] = useState<Mission[]>(() => StorageService.getMissions());
   const [vetMessages, setVetMessages] = useState<VetMessage[]>(() => StorageService.getVetMessages());
   const [isSosOpen, setIsSosOpen] = useState(false);
+  const [isAddPetModalOpen, setIsAddPetModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Active pet reference
-  const activePet = pets.find(p => p.id === activePetId) || pets[0];
+  const activePet = pets.find(p => p.id === activePetId) || pets[0] || null;
 
   // Check for overdue vaccines or health alerts
   const overdueVaccines = activePet?.vaccines.filter(v => v.status === 'overdue') || [];
   const overdueDeworming = activePet?.dewormingHistory.filter(d => new Date(d.nextDueDate).getTime() < Date.now()) || [];
   const hasOverdueAlerts = overdueVaccines.length > 0 || overdueDeworming.length > 0;
   const overdueCount = overdueVaccines.length + overdueDeworming.length;
+
+  // Pending vaccine and deworming alerts count
+  const pendingVaccines = activePet?.vaccines.filter(v => v.status === 'overdue' || v.status === 'due_soon') || [];
+  const pendingDeworming = activePet?.dewormingHistory.filter(d => d.status === 'overdue' || d.status === 'due_soon') || [];
+  const totalPendingAlerts = pendingVaccines.length + pendingDeworming.length;
 
   const handleSelectPet = (petId: string) => {
     setActivePetId(petId);
@@ -50,6 +58,24 @@ export default function App() {
     StorageService.savePets(updatedPets);
     StorageService.setActivePetId(newPet.id);
     handleAddPoints(200, `Novo cãozinho ${newPet.name} cadastrado`);
+    setToastMessage(`🐾 ${newPet.name} cadastrado com sucesso no PET CARE!`);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleLoadDemoData = () => {
+    const demoPets = StorageService.loadDemoPets();
+    setPets(demoPets);
+    setActivePetId(demoPets[0].id);
+    setToastMessage('✨ Dados de demonstração carregados!');
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleClearData = () => {
+    StorageService.clearPets();
+    setPets([]);
+    setActivePetId('');
+    setToastMessage('🧹 Dados limpos com sucesso. Cadastre seu cãozinho!');
+    setTimeout(() => setToastMessage(null), 3500);
   };
 
   const handleUpdateActivePet = (updatedPet: Pet) => {
@@ -90,18 +116,21 @@ export default function App() {
     StorageService.saveVetMessages(newMessages);
   };
 
-  // Pending vaccine and deworming alerts count
-  const pendingVaccines = activePet?.vaccines.filter(v => v.status === 'overdue' || v.status === 'due_soon') || [];
-  const pendingDeworming = activePet?.dewormingHistory.filter(d => d.status === 'overdue' || d.status === 'due_soon') || [];
-  const totalPendingAlerts = pendingVaccines.length + pendingDeworming.length;
-
-  if (!activePet) return null;
+  // If user has not registered any pet yet, display friendly Onboarding screen (never crash or return null!)
+  if (!activePet || pets.length === 0) {
+    return (
+      <PetOnboarding
+        onRegisterPet={handleAddNewPet}
+        onLoadDemoData={handleLoadDemoData}
+      />
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-slate-100 text-[#2d3436] flex flex-col font-fredoka selection:bg-[#fab1a0] selection:text-[#2d3436]">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-fredoka selection:bg-indigo-500 selection:text-white">
       {/* Outer wrapper */}
       <div className="flex-1 flex flex-col">
-        {/* Navbar with Bento Links, Points, SOS Button */}
+        {/* Unified, Responsive Navbar */}
         <Navbar
           currentTab={currentTab}
           onSelectTab={setCurrentTab}
@@ -109,26 +138,34 @@ export default function App() {
           pendingAlertsCount={totalPendingAlerts}
           points={rewards.pointsBalance}
           tier={rewards.tier}
-        />
-
-        {/* Pet Header with Switching, Quick Health Chips, SOS */}
-        <PetProfileHeader
           pets={pets}
           activePet={activePet}
           onSelectPet={handleSelectPet}
-          onAddNewPet={handleAddNewPet}
-          onOpenSos={() => setIsSosOpen(true)}
-          points={rewards.pointsBalance}
-          tier={rewards.tier}
+          onOpenAddPet={() => setIsAddPetModalOpen(true)}
+          onClearData={handleClearData}
         />
 
         {/* Main Content Area */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6">
+        <main className="flex-1 max-w-7xl 2xl:max-w-[1536px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 pb-24 lg:pb-8">
           {/* Toast Alert Notification */}
           {toastMessage && (
-            <div className="fixed bottom-24 right-4 sm:right-6 z-50 bg-[#2d3436] text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl border-3 border-[#55efc4] shadow-[4px_4px_0px_#2d3436] text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-5 duration-200">
+            <div className="fixed bottom-24 lg:bottom-8 right-4 sm:right-6 z-50 bg-slate-900 text-white px-4 sm:px-5 py-3 rounded-2xl border border-indigo-400 shadow-xl text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-5 duration-200">
               <span>{toastMessage}</span>
             </div>
+          )}
+
+          {/* Contextual Pet Header for Non-Dashboard views */}
+          {currentTab !== 'dashboard' && (
+            <PetProfileHeader
+              pets={pets}
+              activePet={activePet}
+              onSelectPet={handleSelectPet}
+              onAddNewPet={handleAddNewPet}
+              onOpenSos={() => setIsSosOpen(true)}
+              onClearData={handleClearData}
+              points={rewards.pointsBalance}
+              tier={rewards.tier}
+            />
           )}
 
           {/* View Switching */}
@@ -212,15 +249,15 @@ export default function App() {
         </main>
       </div>
 
-      {/* Floating Plantão Vet 24h FAB */}
+      {/* Floating Plantão Vet 24h FAB with Shield icon and urgent pulse indicator */}
       {currentTab !== 'vetChat' && (
         <button
           id="floating-vet-fab-btn"
           onClick={() => setCurrentTab('vetChat')}
-          className={`fixed bottom-6 right-6 z-40 flex items-center gap-2.5 px-5 py-3.5 rounded-full border-3 border-[#2d3436] shadow-[4px_4px_0px_#2d3436] transition-all transform hover:scale-105 active:scale-95 group ${
+          className={`fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-40 flex items-center gap-2.5 px-4 sm:px-5 py-3 sm:py-3.5 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 active:scale-95 group ${
             hasOverdueAlerts
-              ? 'bg-[#eb4d4b] hover:bg-[#d63031] text-white animate-bounce'
-              : 'bg-[#fd79a8] hover:bg-[#f368e0] text-[#2d3436]'
+              ? 'bg-rose-600 hover:bg-rose-700 text-white animate-bounce ring-4 ring-rose-300 dark:ring-rose-900/60'
+              : 'bg-indigo-600 hover:bg-indigo-700 text-white'
           }`}
           title={
             hasOverdueAlerts
@@ -234,13 +271,13 @@ export default function App() {
                 <ShieldAlert className="w-5 h-5 text-white stroke-[2.5]" />
                 <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-90"></span>
-                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-white border border-[#2d3436]"></span>
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-rose-200 border-2 border-rose-600"></span>
                 </span>
               </>
             ) : (
               <>
                 <MessageCircle className="w-5 h-5 stroke-[2.5]" />
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#55efc4] rounded-full border border-[#2d3436] animate-ping"></span>
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-indigo-600 animate-ping"></span>
               </>
             )}
           </div>
@@ -248,7 +285,7 @@ export default function App() {
             {hasOverdueAlerts ? (
               <>
                 <span>Ação Urgente ({overdueCount})</span>
-                <span className="hidden sm:inline opacity-90 text-[11px] font-mono-code font-bold">• Plantão 24h</span>
+                <span className="hidden sm:inline opacity-90 text-[11px] font-mono font-bold">• Plantão 24h</span>
               </>
             ) : (
               <span>Plantão Vet 24h</span>
@@ -256,6 +293,13 @@ export default function App() {
           </span>
         </button>
       )}
+
+      {/* Add Pet Modal */}
+      <AddPetModal
+        isOpen={isAddPetModalOpen}
+        onClose={() => setIsAddPetModalOpen(false)}
+        onAddPet={handleAddNewPet}
+      />
 
       {/* SOS Emergency Modal */}
       <SosEmergencyModal
@@ -266,15 +310,15 @@ export default function App() {
 
       {/* Footer */}
       <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p>© {new Date().getFullYear()} AuAu Care • Bento Grid Dog Health & Care System</p>
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p>© {new Date().getFullYear()} PET CARE • Prontuário Digital &amp; Gestão Canina</p>
           <div className="flex items-center gap-4">
-            <button onClick={() => setIsSosOpen(true)} className="text-red-600 font-bold hover:underline">
+            <button onClick={() => setIsSosOpen(true)} className="text-rose-600 font-bold hover:underline">
               Ficha SOS de Emergência
             </button>
             <span>•</span>
             <button onClick={() => setCurrentTab('rewards')} className="hover:underline">
-              Programa AuCoins
+              AuCoins &amp; Prêmios
             </button>
             <span>•</span>
             <button onClick={() => setCurrentTab('vetChat')} className="hover:underline">

@@ -62,6 +62,22 @@ export const VaccineSchedule: React.FC<Props> = ({ pet, onUpdatePet, onAddPoints
     confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
   };
 
+  const handleDeleteVaccine = (vaccineId: string) => {
+    const updated = {
+      ...pet,
+      vaccines: pet.vaccines.filter(v => v.id !== vaccineId),
+    };
+    onUpdatePet(updated);
+  };
+
+  const handleDeleteDeworming = (dewormingId: string) => {
+    const updated = {
+      ...pet,
+      dewormingHistory: pet.dewormingHistory.filter(d => d.id !== dewormingId),
+    };
+    onUpdatePet(updated);
+  };
+
   const handleSaveNewVaccine = (e: React.FormEvent) => {
     e.preventDefault();
     const days = calculateDaysLeft(vacNextDueDate);
@@ -293,8 +309,16 @@ export const VaccineSchedule: React.FC<Props> = ({ pet, onUpdatePet, onAddPoints
                   )}
                 </div>
 
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                  <span className="text-xs text-slate-400">Proteção anual garantida</span>
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => handleDeleteVaccine(vac.id)}
+                    title="Remover vacina"
+                    className="text-xs text-slate-400 hover:text-red-600 transition-colors flex items-center gap-1 p-1 hover:bg-red-50 rounded-lg"
+                  >
+                    <span>🗑️</span>
+                    <span className="hidden sm:inline">Excluir</span>
+                  </button>
+
                   <button
                     onClick={() => handleApplyDose(vac.id)}
                     className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
@@ -374,8 +398,17 @@ export const VaccineSchedule: React.FC<Props> = ({ pet, onUpdatePet, onAddPoints
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Frequência: a cada {dew.frequencyMonths} meses</span>
-                  <span className="font-bold text-emerald-600">Peso no registro: {dew.weightAtTime || pet.weightKg} kg</span>
+                  <span className="text-slate-400">A cada {dew.frequencyMonths} meses</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-emerald-600">Peso: {dew.weightAtTime || pet.weightKg} kg</span>
+                    <button
+                      onClick={() => handleDeleteDeworming(dew.id)}
+                      className="text-slate-400 hover:text-red-600 p-1 rounded transition-colors text-xs"
+                      title="Excluir antipulgas"
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
               </div>
             );

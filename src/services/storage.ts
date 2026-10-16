@@ -2,16 +2,16 @@ import { Pet, PlaceLocation, SocialPost, ParkMeetup, Product, UserRewards, VetMe
 import { INITIAL_PETS, MOCK_PLACES, MOCK_SOCIAL_POSTS, MOCK_PARK_MEETUPS, MOCK_PRODUCTS, INITIAL_USER_REWARDS, INITIAL_VET_MESSAGES, MOCK_REWARD_COUPONS, MOCK_MISSIONS } from '../mockData';
 
 const KEYS = {
-  PETS: 'auau_pets_v1',
-  ACTIVE_PET_ID: 'auau_active_pet_id_v1',
-  PLACES: 'auau_places_v1',
-  POSTS: 'auau_posts_v1',
-  MEETUPS: 'auau_meetups_v1',
-  PRODUCTS: 'auau_products_v1',
-  REWARDS: 'auau_rewards_v1',
-  COUPONS: 'auau_coupons_v1',
-  MISSIONS: 'auau_missions_v1',
-  VET_CHAT: 'auau_vet_chat_v1',
+  PETS: 'petcare_pets_v2',
+  ACTIVE_PET_ID: 'petcare_active_pet_id_v2',
+  PLACES: 'petcare_places_v2',
+  POSTS: 'petcare_posts_v2',
+  MEETUPS: 'petcare_meetups_v2',
+  PRODUCTS: 'petcare_products_v2',
+  REWARDS: 'petcare_rewards_v2',
+  COUPONS: 'petcare_coupons_v2',
+  MISSIONS: 'petcare_missions_v2',
+  VET_CHAT: 'petcare_vet_chat_v2',
 };
 
 function safeGet<T>(key: string, fallback: T): T {
@@ -34,15 +34,16 @@ function safeSet<T>(key: string, value: T): void {
 
 export const StorageService = {
   getPets(): Pet[] {
-    return safeGet<Pet[]>(KEYS.PETS, INITIAL_PETS);
+    // Defaults to empty array so the customer registers their own dog
+    return safeGet<Pet[]>(KEYS.PETS, []);
   },
   savePets(pets: Pet[]): void {
     safeSet(KEYS.PETS, pets);
   },
   getActivePetId(): string {
     const pets = this.getPets();
-    const saved = safeGet<string>(KEYS.ACTIVE_PET_ID, pets[0]?.id || 'pet-1');
-    return pets.some(p => p.id === saved) ? saved : pets[0]?.id || 'pet-1';
+    const saved = safeGet<string>(KEYS.ACTIVE_PET_ID, pets[0]?.id || '');
+    return pets.some(p => p.id === saved) ? saved : pets[0]?.id || '';
   },
   setActivePetId(id: string): void {
     safeSet(KEYS.ACTIVE_PET_ID, id);
@@ -56,6 +57,15 @@ export const StorageService = {
       pets.push(pet);
     }
     this.savePets(pets);
+  },
+  loadDemoPets(): Pet[] {
+    this.savePets(INITIAL_PETS);
+    this.setActivePetId(INITIAL_PETS[0].id);
+    return INITIAL_PETS;
+  },
+  clearPets(): void {
+    this.savePets([]);
+    this.setActivePetId('');
   },
   getPlaces(): PlaceLocation[] {
     return safeGet<PlaceLocation[]>(KEYS.PLACES, MOCK_PLACES);
@@ -128,5 +138,19 @@ export const StorageService = {
     };
     this.saveRewards(updated);
     return updated;
+  },
+  clearAllUserData(): void {
+    Object.values(KEYS).forEach(k => {
+      try {
+        localStorage.removeItem(k);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+    // Also clean previous legacy keys
+    try {
+      localStorage.removeItem('auau_pets_v1');
+      localStorage.removeItem('auau_active_pet_id_v1');
+    } catch {}
   },
 };
